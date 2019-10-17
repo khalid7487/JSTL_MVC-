@@ -5,79 +5,73 @@
  */
 package controller;
 
-import dao.UserDao;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+ 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+ 
+import dao.UserDao;
 import model.User;
-
-/**
- *
- * @author KHALID
- */
+ 
 public class UserController extends HttpServlet {
-
-    private static final long serialVersionUID=1L;
-    private static String INSERT_OR_EDIT="";
-    private static String LIST_USER="";
+    private static final long serialVersionUID = 1L;
+    private static String INSERT_OR_EDIT = "/user.jsp";
+    private static String LIST_USER = "/listuser.jsp";
     private UserDao dao;
-    
-    public UserController(){
+ 
+    public UserController() {
         super();
-        dao=new UserDao();
+        dao = new UserDao();
     }
-  
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+ 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String forward="";
-        String action=request.getParameter("action");
-        if(action.equalsIgnoreCase("delete")){
-            String userId=request.getParameter("userId");
+        String action = request.getParameter("action");
+ 
+        if (action.equalsIgnoreCase("delete")){
+            String userId = request.getParameter("userId");
             dao.deleteUser(userId);
-            forward=LIST_USER;
-            request.setAttribute("users", dao.getAllUsers());
-        }else if(action.equalsIgnoreCase("edit")){
-            forward=INSERT_OR_EDIT;
-            String userId=request.getParameter("userId");
-            User user=dao.getUserById(userId);
+            forward = LIST_USER;
+            request.setAttribute("users", dao.getAllUsers());    
+        } else if (action.equalsIgnoreCase("edit")){
+            forward = INSERT_OR_EDIT;
+            String userId = request.getParameter("userId");
+            User user = dao.getUserById(userId);
             request.setAttribute("user", user);
-        }else if(action.equalsIgnoreCase("listUser")){
-            forward=LIST_USER;
+        } else if (action.equalsIgnoreCase("listUser")){
+            forward = LIST_USER;
             request.setAttribute("users", dao.getAllUsers());
-        }else{
-            forward=INSERT_OR_EDIT;
+        } else {
+            forward = INSERT_OR_EDIT;
         }
-        RequestDispatcher view=request.getRequestDispatcher(forward);
+ 
+        RequestDispatcher view = request.getRequestDispatcher(forward);
         view.forward(request, response);
     }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-               User user=new User();
-               user.setUname(request.getParameter("uname"));
-               user.setPassword(request.getParameter("pass"));
-               try {
-                   Date reg=new SimpleDateFormat("yyyy/MM/dd").parse(request.getParameter("dob"));
-                   user.setRegisteredon(reg);
-        } catch (Exception e) {
+ 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = new User();
+        user.setUname(request.getParameter("uname"));
+        user.setPassword(request.getParameter("pass"));
+        try {
+            Date reg = new SimpleDateFormat("yyyy/MM/dd").parse(request.getParameter("dob"));
+            System.out.println("rrrrrrrrrrr"+ reg);
+            user.setRegisteredon(reg);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-               user.setEmail(request.getParameter("email"));
-               String userid=request.getParameter("uname");
-               user.setUname(userid);
-               dao.checkUser(user);
-               RequestDispatcher view=request.getRequestDispatcher(LIST_USER);
-               request.setAttribute("users", dao.getAllUsers());
-               view.forward(request, response);
+        user.setEmail(request.getParameter("email"));
+        String userid = request.getParameter("uname");
+            user.setUname(userid);
+            dao.checkUser(user);
+        RequestDispatcher view = request.getRequestDispatcher(LIST_USER);
+        request.setAttribute("users", dao.getAllUsers());
+        view.forward(request, response);
     }
-
-  
 }
